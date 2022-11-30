@@ -234,6 +234,10 @@ def create_data_extractor(kwargs_model: "KwargsModel") -> Callable[[Dict[str, An
             form_data = await connection.form()
             parsed_form = parse_form_data(media_type=media_type, form_data=form_data, field=model_field)
             return parsed_form if parsed_form or not kwargs_model.is_data_optional else None
+
+        if kwargs_model.expected_msgpack_data or connection.headers.get("content-type", "").endswith("msgpack"):
+            return await connection.msgpack()
+
         return await connection.json()
 
     def data_extractor(
