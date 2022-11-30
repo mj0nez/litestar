@@ -45,6 +45,7 @@ brotli = { version = "*", optional = true }
 cryptography = { version = "*", optional = true }
 httpx = ">=0.22"
 multidict = ">=6.0.2"
+oic = { version = "*", optional = true }
 opentelemetry-instrumentation-asgi = { version = "*", optional = true }
 orjson = "*"
 picologging = { version = "*", optional = true }
@@ -73,6 +74,7 @@ hypothesis = "*"
 jinja2 = "*"
 mako = "*"
 mongomock-motor = "*"
+oic = "*"
 opentelemetry-instrumentation-asgi = "*"
 opentelemetry-sdk = "*"
 piccolo = "*"
@@ -100,6 +102,7 @@ picologging = ["picologging"]
 redis = ["redis"]
 structlog = ["structlog"]
 jwt = ["python-jose", "cryptography"]
+oidc = ["oic"]
 full = [
     "brotli",
     "cryptography",
