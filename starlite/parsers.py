@@ -4,12 +4,13 @@ from http.cookies import _unquote as unquote_cookie
 from typing import TYPE_CHECKING, Any, Dict, Tuple
 from urllib.parse import parse_qsl, unquote
 
-from orjson import JSONDecodeError, loads
+from msgspec import DecodeError
 from pydantic.fields import SHAPE_LIST, SHAPE_SINGLETON
 from starlite_multipart.datastructures import UploadFile as MultipartUploadFile
 
 from starlite.datastructures.upload_file import UploadFile
 from starlite.enums import RequestEncodingType
+from starlite.utils.serialization import decode_json
 
 if TYPE_CHECKING:
 
@@ -28,9 +29,15 @@ def parse_form_data(media_type: "RequestEncodingType", form_data: "FormMultiDict
     """
     values_dict: Dict[str, Any] = {}
     for key, value in form_data.multi_items():
+
         if not isinstance(value, MultipartUploadFile):
-            with suppress(JSONDecodeError):
-                value = loads(value)
+            with suppress(DecodeError, TypeError):
+                # if isinstance(value, str):
+                #     value = value.encode("utf-8")
+                value = decode_json(value)
+            if isinstance(value, bytes):
+                value = value.decode("utf-8")
+
         existing_value = values_dict.get(key)
         if isinstance(existing_value, list):
             values_dict[key].append(value)
@@ -43,6 +50,7 @@ def parse_form_data(media_type: "RequestEncodingType", form_data: "FormMultiDict
             return list(values_dict.values())
         if field.shape is SHAPE_SINGLETON and field.type_ in (UploadFile, MultipartUploadFile) and values_dict:
             return list(values_dict.values())[0]
+
     return values_dict
 
 

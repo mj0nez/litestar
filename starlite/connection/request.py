@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Dict, Generic, Tuple, cast
 from urllib.parse import parse_qsl
 
-from orjson import loads
 from starlite_multipart import MultipartFormDataParser
 from starlite_multipart import UploadFile as MultipartUploadFile
 from starlite_multipart import parse_options_header
@@ -18,6 +17,7 @@ from starlite.datastructures.upload_file import UploadFile
 from starlite.enums import RequestEncodingType
 from starlite.exceptions import InternalServerException
 from starlite.types import Empty
+from starlite.utils.serialization import decode_json
 
 if TYPE_CHECKING:
     from typing import BinaryIO
@@ -95,7 +95,8 @@ class Request(Generic[User, Auth], ASGIConnection["HTTPRouteHandler", User, Auth
             An arbitrary value
         """
         if self._json is Empty:
-            self._json = self.scope["_json"] = loads((await self.body()) or b"null")  # type: ignore[typeddict-item]
+            body = await self.body()
+            self._json = self.scope["_json"] = decode_json(body or b"null")  # type: ignore[typeddict-item]
         return self._json
 
     async def stream(self) -> AsyncGenerator[bytes, None]:
