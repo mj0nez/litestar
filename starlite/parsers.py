@@ -32,8 +32,6 @@ def parse_form_data(media_type: "RequestEncodingType", form_data: "FormMultiDict
 
         if not isinstance(value, MultipartUploadFile):
             with suppress(DecodeError, TypeError):
-                # if isinstance(value, str):
-                #     value = value.encode("utf-8")
                 value = decode_json(value)
             if isinstance(value, bytes):
                 value = value.decode("utf-8")
